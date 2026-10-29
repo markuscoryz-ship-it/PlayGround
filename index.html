@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d">
+  <meta name="description" content="Aurora Ascent - a five-screen Celeste-style mountain climb with dash, wall jump, and optional motion steering.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307111d'/%3E%3Cpath d='m4 25 8-16 4 7 3-5 9 14Z' fill='%2357e4c1'/%3E%3C/svg%3E">
+  <title>Aurora Ascent</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="title-active">
+  <main id="app">
+    <canvas id="game" aria-label="Aurora Ascent game screen"></canvas>
+    <div class="screen-grain" aria-hidden="true"></div>
+
+    <header id="hud" class="hud">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" role="presentation">
+            <path d="M3 31 14 10l6 10 4-6 13 17Z" fill="currentColor" opacity=".2"/>
+            <path d="m3 31 11-21 6 10 4-6 13 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="m10 31 4-7 4 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-copy"><span>AURORA</span><strong>ASCENT</strong></div>
+      </div>
+
+      <div class="room-pill"><b id="roomNo">01</b><i></i><span id="roomName">BASE CAMP</span></div>
+
+      <div class="hud-right">
+        <div class="stat"><span>TIME</span><b id="time">0:00.0</b></div>
+        <div class="stat"><span>FALLS</span><b id="deaths">0</b></div>
+        <div class="stat berry-stat" title="Snowberries collected">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 14.9 8l6.1.9-4.4 4.3 1 6.1-5.6-3-5.6 3 1-6.1L3 9l6.1-.9Z" fill="currentColor"/></svg>
+          <b id="berries">0</b>
+        </div>
+        <button id="tiltBtn" class="icon-btn" type="button" aria-label="Toggle motion tilt steering" title="Motion tilt steering" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 17.8h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M4 8c-1.2 2.5-1.2 5.5 0 8M20 8c1.2 2.5 1.2 5.5 0 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".65"/></svg>
+          <span>TILT</span>
+        </button>
+        <button id="soundBtn" class="icon-btn sound-btn" type="button" aria-label="Toggle sound" title="Sound" aria-pressed="true">
+          <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z" fill="currentColor"/><path d="M16 8.5c1.4 1.8 1.4 5.2 0 7M18.6 6c2.4 3.2 2.4 8.8 0 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4Z" fill="currentColor"/><path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="roomBanner" class="room-banner" aria-live="polite">
+      <span id="bannerNo">SCREEN 01</span>
+      <strong id="bannerName">BASE CAMP</strong>
+      <i></i>
+    </div>
+
+    <div id="hint" class="hint" aria-live="polite"></div>
+    <div id="toast" class="toast" role="status"></div>
+
+    <section id="titleScreen" class="overlay title-overlay">
+      <div class="title-wrap">
+        <p class="eyebrow"><i></i> FIVE SCREENS · ONE SUMMIT</p>
+        <h1><span>AURORA</span><em>ASCENT</em></h1>
+        <p class="lede">Dash through the dark, kick off the walls, and climb until the sky catches fire.</p>
+        <div class="feature-row" aria-hidden="true">
+          <span><kbd>DASH</kbd> cut the gap</span>
+          <span><kbd>WALL</kbd> jump the spire</span>
+          <span><kbd>REACH</kbd> the summit</span>
+        </div>
+        <div class="title-actions">
+          <button id="startBtn" class="primary" type="button">START</button>
+          <button id="tiltTitleBtn" class="tilt-option" type="button" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 17.8h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            <span>MOTION TILT: OFF</span>
+          </button>
+        </div>
+        <div class="control-cards">
+          <div class="control-card touch-only">
+            <span class="control-label">TOUCH</span>
+            <p>Drag the joystick to move. Tap <b>JUMP</b> and <b>DASH</b>.</p>
+          </div>
+          <div class="control-card key-only">
+            <span class="control-label">KEYBOARD</span>
+            <p><kbd>A</kbd><kbd>D</kbd> move · <kbd>SPACE</kbd> jump · <kbd>X</kbd> dash</p>
+          </div>
+        </div>
+        <p class="tiny-note">Tip: hold into a wall to slide. Dash crystals refill your dash.</p>
+      </div>
+    </section>
+
+    <section id="pauseScreen" class="overlay small-overlay hidden" aria-hidden="true">
+      <div class="modal">
+        <p class="eyebrow"><i></i> CATCH YOUR BREATH</p>
+        <h2>PAUSED</h2>
+        <p class="modal-copy">The mountain is patient.</p>
+        <button id="resumeBtn" class="primary" type="button">RESUME</button>
+        <button id="restartBtn" class="secondary" type="button">RESTART SCREEN</button>
+      </div>
+    </section>
+
+    <section id="winScreen" class="overlay small-overlay hidden" aria-hidden="true">
+      <div class="modal win-modal">
+        <p class="eyebrow"><i></i> THE SKY CATCHES FIRE</p>
+        <h2>SUMMIT<br><em>REACHED</em></h2>
+        <p class="modal-copy">You climbed all five screens.</p>
+        <div class="win-stats">
+          <div><span>TIME</span><b id="winTime">0:00.0</b></div>
+          <div><span>FALLS</span><b id="winDeaths">0</b></div>
+          <div><span>BERRIES</span><b id="winBerries">0</b></div>
+        </div>
+        <button id="againBtn" class="primary" type="button">CLIMB AGAIN</button>
+      </div>
+    </section>
+
+    <div id="touchControls" class="touch-controls" aria-label="Touch controls">
+      <div id="joystick" class="joystick" role="group" aria-label="Movement joystick">
+        <div class="joystick-base"></div>
+        <div id="stick" class="joystick-stick"><span></span></div>
+        <span class="joy-arrow joy-up" aria-hidden="true"></span>
+        <span class="joy-arrow joy-down" aria-hidden="true"></span>
+        <span class="joy-arrow joy-left" aria-hidden="true"></span>
+        <span class="joy-arrow joy-right" aria-hidden="true"></span>
+        <small>MOVE</small>
+      </div>
+      <div class="action-buttons">
+        <button id="dashBtn" class="action dash-action" type="button" aria-label="Dash">
+          <span class="action-glyph dash-glyph" aria-hidden="true"></span>
+          <span class="action-label">DASH</span>
+        </button>
+        <button id="jumpBtn" class="action jump-action" type="button" aria-label="Jump">
+          <span class="action-glyph jump-glyph" aria-hidden="true"></span>
+          <span class="action-label">JUMP</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="levels.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
