@@ -1,0 +1,29 @@
+{
+  "name": "gta-vii-vice-sunset",
+  "version": "1.0.0",
+  "description": "GTA VII - a mobile-first open world crime sandbox built with Three.js",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markuscoryz-ship-it/PlayGround.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markuscoryz-ship-it/PlayGround/issues"
+  },
+  "homepage": "https://github.com/markuscoryz-ship-it/PlayGround#readme",
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "vite": "^7.3.7"
+  },
+  "type": "module"
+}

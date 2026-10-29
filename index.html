@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1" />
+  <meta name="theme-color" content="#090714" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="GTA VII — Vice City Sunset. An open-world crime sandbox for phone and tablet." />
+  <title>GTA VII — Vice City Sunset</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307050f'/%3E%3Ctext x='32' y='44' font-family='Impact,Arial Black' font-size='32' text-anchor='middle' fill='%23ff8b3d'%3EVII%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene"></canvas>
+    <div id="atmosphere"></div>
+    <div id="grain"></div>
+    <div id="vignette"></div>
+
+    <div id="hud">
+      <header id="brand">
+        <div class="brand-lockup">
+          <span class="brand-kicker">GRAND THEFT AUTO</span>
+          <span class="brand-mark">VII</span>
+        </div>
+        <div class="district"><span class="district-dot"></span>VICE CITY <b>SUNSET STRIP</b></div>
+      </header>
+
+      <div id="top-right">
+        <div id="wanted" aria-label="Wanted level">
+          <span class="star" data-i="1"></span><span class="star" data-i="2"></span><span class="star" data-i="3"></span><span class="star" data-i="4"></span><span class="star" data-i="5"></span>
+        </div>
+        <div id="money"><span class="cash-label">CASH</span><span id="cash">$2,450</span></div>
+        <div id="utility">
+          <button id="btn-tilt" class="pill" type="button" aria-label="Toggle accelerometer tilt">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2.4"/><path d="M10 6.4h4"/><circle cx="12" cy="17.2" r="1.1"/></svg>
+            <span>TILT OFF</span>
+          </button>
+          <button id="btn-sound" class="pill icon-pill" type="button" aria-label="Toggle sound">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8L7.2 14.5H4z"/><path class="wave" d="M15.2 8.7a4.6 4.6 0 0 1 0 6.6M17.8 6.3a8 8 0 0 1 0 11.4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="mission">
+        <div class="mission-top"><span id="mission-type">SUNSET RUN</span><span id="mission-timer">01:30</span></div>
+        <div class="mission-title" id="mission-title">BEACHFRONT DELIVERY</div>
+        <div class="mission-sub"><span id="mission-distance">180 M</span><span class="mission-sep"></span><span>REACH THE MARKER</span></div>
+        <div class="mission-progress"><i id="mission-progress-fill"></i></div>
+      </div>
+
+      <div id="minimap-wrap">
+        <div id="minimap-ring">
+          <canvas id="minimap" width="360" height="360"></canvas>
+          <div id="minimap-n">N</div>
+          <div id="minimap-compass"></div>
+        </div>
+        <div id="player-status">
+          <div class="status-row"><span class="status-icon health"></span><div class="status-track"><i id="health-fill"></i></div></div>
+          <div class="status-row"><span class="status-icon armor"></span><div class="status-track armor-track"><i id="armor-fill"></i></div></div>
+        </div>
+      </div>
+
+      <div id="vehicle-hud">
+        <div id="speedo">
+          <svg viewBox="0 0 160 160" aria-hidden="true">
+            <circle class="speed-track" cx="80" cy="80" r="66"/>
+            <circle id="speed-arc" class="speed-arc" cx="80" cy="80" r="66"/>
+            <circle class="speed-inner" cx="80" cy="80" r="52"/>
+          </svg>
+          <div class="speed-read"><span id="speed-value">0</span><small>MPH</small></div>
+          <div class="gear" id="gear">D</div>
+        </div>
+        <div id="vehicle-name"><span id="vehicle-label">INFERNUS</span><small>VICE EDITION</small></div>
+      </div>
+
+      <div id="onfoot-hud">
+        <div id="weapon-card">
+          <div class="weapon-art">
+            <svg viewBox="0 0 80 48" aria-hidden="true"><path d="M4 20h34l7-5h17l3 4 11 2v6H48l-5 5H28l-3-6H4z"/><path d="M30 32h14l-2 9H33z"/></svg>
+          </div>
+          <div class="weapon-copy"><span>MICRO SMG</span><small>∞</small></div>
+        </div>
+      </div>
+
+      <div id="crosshair"><i class="ch-dot"></i><i class="ch-t"></i><i class="ch-r"></i><i class="ch-b"></i><i class="ch-l"></i></div>
+
+      <div id="toast"><span id="toast-icon"></span><span id="toast-text"></span></div>
+
+      <div id="desktop-hint">
+        <span><b>WASD</b> DRIVE</span><span><b>MOUSE</b> LOOK</span><span><b>CLICK</b> FIRE</span><span><b>E</b> ENTER / EXIT</span><span><b>SHIFT</b> BOOST</span>
+      </div>
+
+      <div id="touch-controls" aria-hidden="true">
+        <div id="stick-zone">
+          <div id="stick-base">
+            <div id="stick-ring"></div>
+            <div id="stick-knob"><svg viewBox="0 0 24 24"><path d="M12 5l5 7H7z"/><path d="M12 19l-5-7h10z"/></svg></div>
+          </div>
+          <span class="stick-label">MOVE</span>
+        </div>
+        <div id="look-zone"><span class="look-label">LOOK</span></div>
+        <div id="action-buttons">
+          <button id="btn-fire" class="touch-btn fire" type="button" aria-label="Fire">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg>
+            <span>FIRE</span>
+          </button>
+          <button id="btn-action" class="touch-btn action" type="button" aria-label="Enter or exit vehicle">
+            <svg viewBox="0 0 24 24"><path d="M3 14l2-6h14l2 6v4h-3v2h-2v-2H8v2H6v-2H3z"/><circle cx="7" cy="15" r="1.2"/><circle cx="17" cy="15" r="1.2"/></svg>
+            <span>ENTER</span>
+          </button>
+          <button id="btn-sprint" class="touch-btn small" type="button" aria-label="Sprint or boost">
+            <svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 9-12h-6z"/></svg>
+            <span>RUN</span>
+          </button>
+          <button id="btn-jump" class="touch-btn small" type="button" aria-label="Jump">
+            <svg viewBox="0 0 24 24"><path d="M12 3l6 7h-4v10h-4V10H6z"/></svg>
+            <span>JUMP</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="damage"></div>
+    <div id="wasted"><span>WASTED</span><small>VICE CITY MEDICAL CENTER</small></div>
+
+    <div id="splash">
+      <div class="splash-glow"></div>
+      <div class="splash-kicker">ROCKSTAR GAMES PRESENTS</div>
+      <div class="splash-logo"><span>GTA</span><b>VII</b></div>
+      <div class="splash-sub">VICE CITY <i>•</i> SUNSET</div>
+      <div class="splash-line"></div>
+      <div class="splash-loading"><i></i><i></i><i></i></div>
+    </div>
+
+    <div id="rotate-hint">
+      <div class="rotate-icon"></div>
+      <p>ROTATE FOR THE FULL EXPERIENCE</p>
+      <small>Landscape recommended</small>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
