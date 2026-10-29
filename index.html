@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#100916" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="GTA VII: Vice Harbor — a touch-first open world driving game for phone and tablet." />
+  <title>GTA VII — Vice Harbor</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23100a1c'/%3E%3Ctext x='32' y='44' font-family='Arial Black,Arial' font-size='28' font-weight='900' text-anchor='middle' fill='%23ff2d87'%3EGTA%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="GTA VII game world"></canvas>
+
+    <div id="look-zone" aria-hidden="true"></div>
+
+    <div id="hud" class="hidden" aria-live="polite">
+      <header id="top-bar">
+        <div id="brand">
+          <div class="brand-lockup"><span class="brand-gta">GTA</span><span class="brand-vii">VII</span></div>
+          <div class="brand-sub">VICE HARBOR</div>
+        </div>
+
+        <div id="stats">
+          <div class="stat money"><span class="stat-label">CASH</span><span id="money">$2,500</span></div>
+          <div class="stat heat"><span class="stat-label">HEAT</span><span id="stars">☆☆☆☆☆</span></div>
+        </div>
+
+        <div id="map-panel">
+          <canvas id="minimap" width="360" height="360" aria-label="City minimap"></canvas>
+          <div class="map-ring"></div>
+          <span class="map-n">N</span>
+        </div>
+      </header>
+
+      <section id="objective-card">
+        <div class="objective-icon"><span></span></div>
+        <div class="objective-copy">
+          <div class="objective-kicker" id="objective-kicker">MISSION</div>
+          <div class="objective-title" id="objective-title">GET IN A VEHICLE</div>
+          <div class="objective-sub" id="objective-sub">Find a ride and hit the streets</div>
+        </div>
+        <div class="objective-timer" id="objective-timer">02:00</div>
+      </section>
+
+      <div id="toast" role="status"></div>
+
+      <div id="speedo" class="hidden">
+        <div class="speedo-value"><span id="speed-value">0</span><small>KM/H</small></div>
+        <div class="speedo-bar"><i id="speed-fill"></i></div>
+      </div>
+
+      <div id="prompt" class="hidden"><b>ENTER</b> GET IN VEHICLE</div>
+
+      <div id="controls">
+        <div id="joystick-zone" aria-label="Movement joystick">
+          <div id="joystick-base">
+            <div class="joy-tick tick-n"></div><div class="joy-tick tick-e"></div>
+            <div class="joy-tick tick-s"></div><div class="joy-tick tick-w"></div>
+            <div id="joystick-knob"></div>
+          </div>
+          <div class="joystick-hint">MOVE</div>
+        </div>
+
+        <div id="action-stack">
+          <button id="btn-brake" class="action-btn small" aria-label="Brake"><span class="btn-icon">◼</span><span class="btn-text">BRAKE</span></button>
+          <button id="btn-sprint" class="action-btn small" aria-label="Sprint"><span class="btn-icon">»</span><span class="btn-text">RUN</span></button>
+          <button id="btn-action" class="action-btn primary" aria-label="Enter vehicle"><span class="btn-icon">E</span><span class="btn-text">ENTER</span></button>
+        </div>
+      </div>
+
+      <button id="btn-pause" class="icon-btn" aria-label="Pause">II</button>
+    </div>
+
+    <section id="start-screen">
+      <div class="start-gradient"></div>
+      <div class="start-content">
+        <div class="start-badge">OPEN WORLD // TOUCH EDITION</div>
+        <div class="title-lockup" aria-label="GTA VII Vice Harbor">
+          <div class="title-main"><span>GTA</span><em>VII</em></div>
+          <div class="title-sub">VICE HARBOR</div>
+        </div>
+        <p class="start-tagline">Steal the night. Run the harbor. <br />Every street is yours.</p>
+
+        <button id="start-btn" class="start-btn" aria-label="Start Game">
+          <span class="start-btn-glow"></span>
+          <span class="start-btn-text">START GAME</span>
+          <span class="start-btn-arrow">›</span>
+        </button>
+
+        <div class="start-options">
+          <button id="tilt-start" class="chip" aria-pressed="false">
+            <span class="chip-dot"></span>
+            MOTION TILT <b>OFF</b>
+          </button>
+          <button id="sound-start" class="chip" aria-pressed="true">
+            <span class="chip-dot"></span>
+            SOUND <b>ON</b>
+          </button>
+        </div>
+
+        <div class="start-controls">
+          <div class="legend"><div class="legend-key">◉</div><div><b>LEFT STICK</b><span>Move &amp; drive</span></div></div>
+          <div class="legend"><div class="legend-key">◌</div><div><b>DRAG</b><span>Look around</span></div></div>
+          <div class="legend"><div class="legend-key">E</div><div><b>ACTION</b><span>Enter / exit cars</span></div></div>
+        </div>
+        <div class="start-foot">Best played in landscape · Headphones recommended</div>
+      </div>
+    </section>
+
+    <section id="pause-screen" class="hidden">
+      <div class="pause-card">
+        <div class="pause-kicker">PAUSED</div>
+        <h2>VICE HARBOR</h2>
+        <div class="pause-stats">
+          <div><span>CASH</span><b id="pause-money">$2,500</b></div>
+          <div><span>DELIVERIES</span><b id="pause-deliveries">0</b></div>
+          <div><span>TOP SPEED</span><b id="pause-speed">0</b></div>
+        </div>
+        <button id="resume-btn" class="menu-btn primary" aria-label="Resume">RESUME</button>
+        <button id="restart-btn" class="menu-btn" aria-label="Restart run">RESTART RUN</button>
+        <div class="pause-settings">
+          <button id="tilt-pause" class="chip" aria-pressed="false"><span class="chip-dot"></span>MOTION TILT <b>OFF</b></button>
+          <button id="sound-pause" class="chip" aria-pressed="true"><span class="chip-dot"></span>SOUND <b>ON</b></button>
+        </div>
+        <div class="pause-hint">Keyboard: WASD drive · E enter · Space brake · Shift boost · P pause</div>
+      </div>
+    </section>
+
+    <div id="flash"></div>
+    <div id="vignette"></div>
+    <div id="error-overlay" class="hidden"><h2>WEBGL NEEDED</h2><p>This browser could not create a WebGL context. Try updating your browser or enabling hardware acceleration.</p></div>
+  </main>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js",
+        "three/addons/": "./vendor/addons/"
+      }
+    }
+  </script>
+  <script type="module" src="./src/game.js"></script>
+</body>
+</html>
