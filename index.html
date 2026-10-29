@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0718" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>GTA VII — Neon City</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0718'/%3E%3Ctext x='32' y='45' font-family='Arial Narrow,Arial' font-size='32' font-weight='bold' text-anchor='middle' fill='%23ff2f8e'%3EVII%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+  <canvas id="game"></canvas>
+  <div id="vignette"></div>
+  <div id="scanlines"></div>
+
+  <div id="menu" class="overlay">
+    <div class="menu-scrim"></div>
+    <div class="menu-glow"></div>
+    <div class="menu-content">
+      <div class="kicker"><span></span>OPEN WORLD · NEON CITY<span></span></div>
+      <h1 class="logo" aria-label="GTA VII">
+        <span class="gta">GTA</span><span class="seven">VII</span>
+      </h1>
+      <div class="tagline">OWN THE NIGHT</div>
+      <button id="startBtn" class="primary" type="button"><span>START GAME</span></button>
+      <div class="menu-row">
+        <button id="menuTiltBtn" class="ghost" type="button">TILT STEERING <em id="menuTiltState">OFF</em></button>
+        <button id="menuSoundBtn" class="ghost" type="button">SOUND <em id="menuSoundState">ON</em></button>
+      </div>
+      <div class="controls-hint">
+        <div><b>TOUCH</b><span>Joystick to move · drag to look</span></div>
+        <div><b>DESKTOP</b><span>WASD · drag look · E enter · F fire · Shift run</span></div>
+      </div>
+      <div class="motion-hint" id="motionHint">Optional tilt steering available on phones &amp; tablets</div>
+    </div>
+    <div class="menu-footer"><span>FAN-MADE WEB SANDBOX</span><span>WEBGL · THREE.JS</span></div>
+  </div>
+
+  <div id="hud" class="hidden">
+    <div id="topLeft">
+      <div class="brand">NEON<span>CITY</span></div>
+      <div class="cash-row"><span class="label">CASH</span><span id="cash">$0</span></div>
+      <div class="bar-wrap"><div id="healthFill"></div><div class="bar-ticks"></div></div>
+      <div id="wanted" aria-label="wanted level"></div>
+    </div>
+
+    <div id="topRight">
+      <div class="map-frame">
+        <canvas id="minimap" width="220" height="220"></canvas>
+        <div class="map-n">N</div>
+      </div>
+      <div id="areaName">OCEAN DRIVE</div>
+    </div>
+
+    <div id="mission">
+      <div class="mTag"><span>MISSION</span><b id="missionNum">01</b></div>
+      <div id="missionTitle">FIRST RIDE</div>
+      <div id="missionDesc">Steal a ride and reach the marker</div>
+      <div id="missionDist">—</div>
+    </div>
+
+    <div id="crosshair"><i></i><i></i><i></i><i></i></div>
+    <div id="hitmarker"></div>
+
+    <div id="speedo" class="hidden">
+      <div class="speed-num"><span id="speed">0</span><small>MPH</small></div>
+      <div id="gear">D</div>
+      <div class="speed-bar"><i id="speedFill"></i></div>
+    </div>
+
+    <div id="toasts"></div>
+    <div id="vehicleHint" class="hidden">TAP ENTER TO STEAL</div>
+
+    <div id="touchUI">
+      <div id="stickZone">
+        <div id="stickBase">
+          <div class="stick-ring"></div>
+          <div id="stickKnob"></div>
+        </div>
+      </div>
+      <div id="buttons">
+        <button id="btnAction" class="round action" type="button"><span>ENTER</span></button>
+        <button id="btnFire" class="round fire" type="button"><span>FIRE</span></button>
+        <button id="btnSprint" class="round small" type="button"><span>RUN</span></button>
+        <button id="btnBrake" class="round small brake" type="button"><span>BRAKE</span></button>
+      </div>
+    </div>
+
+    <button id="pauseBtn" type="button" aria-label="Pause"><span></span><span></span></button>
+    <div id="desktopHint">WASD MOVE · DRAG LOOK · E ENTER/EXIT · F FIRE · SHIFT RUN</div>
+  </div>
+
+  <div id="pause" class="overlay hidden">
+    <div class="pause-card">
+      <div class="pause-kicker">NEON CITY</div>
+      <h2>PAUSED</h2>
+      <button id="resumeBtn" class="primary small-btn" type="button"><span>RESUME</span></button>
+      <button id="tiltBtn" class="setting" type="button">TILT STEERING <em id="tiltState">OFF</em></button>
+      <button id="soundBtn" class="setting" type="button">SOUND <em id="soundState">ON</em></button>
+      <button id="restartBtn" class="setting" type="button">RESTART RUN <em>↺</em></button>
+      <div class="pause-note" id="motionNote">On iPhone / iPad, tilt steering asks for motion access.</div>
+    </div>
+  </div>
+
+  <div id="wasted" class="hidden">
+    <div class="wasted-title">WASTED</div>
+    <small>RESPAWNING…</small>
+  </div>
+
+  <div id="rotateHint">
+    <div class="rotate-icon"></div>
+    <div>ROTATE YOUR DEVICE</div>
+    <small>Neon City plays best in landscape</small>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
