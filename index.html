@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#08070f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>GTA VII — Neon Vice</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2308070f'/%3E%3Ctext x='32' y='43' font-family='Arial Black' font-size='25' font-weight='900' fill='%23ffd166' text-anchor='middle'%3EGTA%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js",
+        "three/addons/": "./vendor/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-label="GTA VII Neon Vice game view"></canvas>
+
+  <div class="screen-fx" aria-hidden="true">
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <div class="scanlines"></div>
+  </div>
+
+  <section id="menu" class="menu" aria-label="Main menu">
+    <header class="menu-top">
+      <div class="brand"><span class="brand-mark">OMG</span><span class="brand-copy">ORIGINAL<br><b>OPEN WORLD</b></span></div>
+      <div class="platform"><span class="live-dot"></span>PHONE + TABLET</div>
+    </header>
+
+    <div class="menu-hero">
+      <p class="eyebrow"><span></span>VICE SHORES / 2026</p>
+      <h1 class="logo" aria-label="GTA VII">
+        <span class="logo-gta">GTA</span><span class="logo-vii">VII</span>
+      </h1>
+      <p class="logo-sub">NEON VICE</p>
+      <p class="tagline">Own the boulevard. Outrun the tide.<br>An open-world crime saga built for touch.</p>
+      <div class="menu-actions">
+        <button id="start-btn" class="start-btn" type="button" aria-label="Start Game">
+          <span>Start Game</span>
+          <i aria-hidden="true">›</i>
+        </button>
+        <button id="tilt-btn" class="tilt-btn" type="button" aria-pressed="false">
+          <span class="tilt-glyph" aria-hidden="true">◈</span>
+          <span id="tilt-label">Tilt Steering: Off</span>
+        </button>
+      </div>
+      <div class="menu-meta">
+        <span><i></i>TOUCH CONTROLS</span>
+        <span><i></i>OPTIONAL MOTION</span>
+        <span><i></i>OPEN WORLD</span>
+      </div>
+    </div>
+
+    <footer class="menu-footer">
+      <div class="footer-hint"><b>WASD</b> MOVE <em>/</em> <b>DRAG</b> LOOK <em>/</em> <b>E</b> VEHICLE <em>/</em> <b>F</b> STRIKE</div>
+      <div class="footer-build">BUILD 07.26 <span>•</span> VICE SHORES</div>
+    </footer>
+  </section>
+
+  <main id="hud" aria-label="Game HUD">
+    <div class="hud-left">
+      <div class="mission-card">
+        <span class="mission-kicker">LEO // THE PIER</span>
+        <strong id="mission-title">Reach the Neon Pier</strong>
+        <span class="mission-foot"><i class="mission-pip"></i><span id="mission-distance">240 M</span><span class="mission-rule"></span><span id="mission-state">ACTIVE</span></span>
+      </div>
+      <div class="status-bars">
+        <div class="status-row"><span>HP</span><div class="bar"><i id="health-bar" style="width:86%"></i></div></div>
+        <div class="status-row armor"><span>AR</span><div class="bar"><i id="armor-bar" style="width:54%"></i></div></div>
+      </div>
+    </div>
+
+    <div class="hud-center">
+      <div class="location-line"><span id="district">OCEAN DRIVE</span><i></i><span id="clock">21:47</span></div>
+      <div id="tilt-chip" class="tilt-chip"><span>◈</span> TILT ACTIVE</div>
+    </div>
+
+    <div class="hud-right">
+      <div class="map-shell">
+        <canvas id="minimap" width="260" height="260"></canvas>
+        <span class="map-n">N</span>
+        <span class="map-scan"></span>
+      </div>
+      <div class="hud-stack">
+        <div id="cash" class="cash">$1,264,000</div>
+        <div id="wanted" class="wanted" aria-label="Wanted level 2 of 5">
+          <span class="star on">★</span><span class="star on">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="waypoint" class="waypoint">
+      <span class="waypoint-icon">◆</span>
+      <span class="waypoint-copy"><b>NEON PIER</b><small id="waypoint-distance">240 M</small></span>
+    </div>
+
+    <div id="interact" class="interact-prompt">
+      <span class="key">E</span><b id="interact-label">ENTER VEHICLE</b>
+    </div>
+
+    <div id="car-hud" class="car-hud">
+      <div class="speed-wrap"><span id="speed">000</span><small>KM/H</small></div>
+      <div class="gear-wrap"><span id="gear">D</span><small>GEAR</small></div>
+      <div class="boost-track"><i id="boost-fill"></i></div>
+    </div>
+
+    <div id="objective-toast" class="objective-toast">
+      <span class="toast-kicker">NEW OBJECTIVE</span>
+      <strong>MEET LEO AT THE NEON PIER</strong>
+      <span>Follow the coastline north. Do not keep him waiting.</span>
+    </div>
+
+    <div id="completion-toast" class="completion-toast">
+      <span class="completion-kicker">MISSION PASSED</span>
+      <strong>THE NEON PIER</strong>
+      <span class="completion-cash">+ $25,000</span>
+    </div>
+
+    <div id="permission-toast" class="permission-toast" role="status" aria-live="polite"></div>
+
+    <div class="desktop-hint" aria-hidden="true"><b>WASD</b> MOVE <span>•</span> <b>DRAG</b> LOOK <span>•</span> <b>E</b> VEHICLE <span>•</span> <b>F</b> STRIKE</div>
+  </main>
+
+  <div id="touch-ui" aria-label="Touch controls">
+    <div id="joystick" class="joystick">
+      <span class="joystick-ring"></span>
+      <span class="joystick-cross"></span>
+      <span id="joystick-knob" class="joystick-knob"></span>
+      <span class="joystick-label">MOVE</span>
+    </div>
+    <div class="action-cluster">
+      <button id="btn-attack" class="action-btn attack" type="button" aria-label="Strike"><span>STRIKE</span><b>F</b></button>
+      <button id="btn-vehicle" class="action-btn vehicle" type="button" aria-label="Enter vehicle"><span id="vehicle-label">ENTER</span><b>E</b></button>
+      <button id="btn-jump" class="action-btn jump" type="button" aria-label="Jump"><span>JUMP</span><b>⤒</b></button>
+    </div>
+    <div class="look-zone" aria-hidden="true"><span>DRAG TO LOOK</span></div>
+  </div>
+
+  <div id="flash" class="flash" aria-hidden="true"></div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
