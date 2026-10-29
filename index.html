@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#171b17" />
+  <meta name="description" content="DAY ZERO — a low-poly mobile survival shooter. Scavenge the dead zone and survive until dawn." />
+  <title>DAY ZERO — Low-Poly Survival</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="scene" aria-label="DAY ZERO game world"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div id="damage-flash" aria-hidden="true"></div>
+  <div id="heal-flash" aria-hidden="true"></div>
+
+  <div id="hud" class="hud" aria-hidden="true" inert>
+    <header class="hud-top">
+      <section class="vitals panel">
+        <div class="panel-label"><span>SURVIVOR</span><b id="player-id">01</b></div>
+        <div class="vital" data-vital="health">
+          <div class="vital-head"><span>HEALTH</span><b id="health-value">100</b></div>
+          <div class="track"><i id="health-bar" style="transform:scaleX(1)"></i></div>
+        </div>
+        <div class="vital" data-vital="hunger">
+          <div class="vital-head"><span>FOOD</span><b id="hunger-value">72</b></div>
+          <div class="track"><i id="hunger-bar" style="transform:scaleX(.72)"></i></div>
+        </div>
+        <div class="vital" data-vital="thirst">
+          <div class="vital-head"><span>WATER</span><b id="thirst-value">68</b></div>
+          <div class="track"><i id="thirst-bar" style="transform:scaleX(.68)"></i></div>
+        </div>
+        <div class="vital" data-vital="stamina">
+          <div class="vital-head"><span>STAMINA</span><b id="stamina-value">100</b></div>
+          <div class="track"><i id="stamina-bar" style="transform:scaleX(1)"></i></div>
+        </div>
+      </section>
+
+      <section class="heading panel">
+        <div class="compass-window">
+          <div id="compass-strip" class="compass-strip"></div>
+          <span class="compass-needle"></span>
+        </div>
+        <div class="objective-row">
+          <span class="objective-tag">OBJECTIVE</span>
+          <b id="objective-text">SURVIVE UNTIL DAWN</b>
+        </div>
+        <div class="dawn-row"><span id="dawn-label">DAWN IN 04:00</span><span class="day-dot"></span><span id="zone-name">CHERNOZEMSK</span></div>
+      </section>
+
+      <section class="status panel">
+        <div class="clock-row"><b id="clock">D1 17:30</b><span id="weather">CLEAR · 14°C</span></div>
+        <div class="stat-row"><span>INFECTED <b id="kill-count">0</b></span><span>SCAVENGED <b id="loot-count">0</b></span></div>
+        <div class="status-actions">
+          <button id="sound-btn" class="icon-btn" aria-label="Toggle sound" title="Toggle sound">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+          </button>
+          <button id="pause-btn" class="icon-btn" aria-label="Pause game" title="Pause">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          </button>
+        </div>
+      </section>
+    </header>
+
+    <div id="crosshair" class="crosshair"><i></i><i></i><i></i><i></i><span></span></div>
+    <div id="hitmarker" class="hitmarker"><i></i><i></i><i></i><i></i></div>
+
+    <div id="interact-wrap" class="interact-wrap">
+      <button id="interact-btn" class="interact-btn">
+        <span class="key-cap" id="interact-key">E</span>
+        <span id="interact-label">PICK UP</span>
+      </button>
+    </div>
+
+    <div id="toast-stack" class="toast-stack"></div>
+    <div id="location-banner" class="location-banner">
+      <span>CHERNOZEMSK REGION</span>
+      <b id="location-title">KAMENKA</b>
+      <small id="location-sub">POPULATION 0</small>
+    </div>
+
+    <div id="reload-ring" class="reload-ring"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"></circle><circle id="reload-progress" cx="24" cy="24" r="20"></circle></svg><span>RELOADING</span></div>
+
+    <div class="hud-bottom">
+      <section class="movement-zone">
+        <div id="joystick" class="joystick" aria-label="Movement joystick">
+          <div class="joystick-ring"></div>
+          <div id="joystick-knob" class="joystick-knob"></div>
+          <span class="joy-label">MOVE</span>
+        </div>
+        <div id="desktop-hint" class="desktop-hint">
+          <span><kbd>WASD</kbd> MOVE</span><span><kbd>SHIFT</kbd> SPRINT</span><span><kbd>E</kbd> USE</span><span><kbd>R</kbd> RELOAD</span>
+        </div>
+      </section>
+
+      <section class="inventory" aria-label="Inventory">
+        <button class="slot" data-use="food" aria-label="Use food">
+          <span class="slot-key">1</span>
+          <span class="slot-icon icon-food"></span>
+          <b id="food-count">1</b>
+          <small>FOOD</small>
+        </button>
+        <button class="slot" data-use="water" aria-label="Use water">
+          <span class="slot-key">2</span>
+          <span class="slot-icon icon-water"></span>
+          <b id="water-count">1</b>
+          <small>WATER</small>
+        </button>
+        <button class="slot" data-use="med" aria-label="Use bandage">
+          <span class="slot-key">3</span>
+          <span class="slot-icon icon-med"></span>
+          <b id="med-count">1</b>
+          <small>BANDAGE</small>
+        </button>
+      </section>
+
+      <section class="combat-zone">
+        <div class="weapon-card">
+          <div class="weapon-name" id="weapon-name">M1911</div>
+          <div class="ammo"><b id="mag-count">8</b><span>/ <i id="reserve-count">24</i></span></div>
+          <div class="mag-pips" id="mag-pips"></div>
+        </div>
+        <div class="action-cluster">
+          <button id="sprint-btn" class="action-btn sprint-btn" aria-label="Sprint"><span>SPRINT</span><i class="sprint-bars"></i></button>
+          <button id="reload-btn" class="action-btn reload-btn" aria-label="Reload"><span>RELOAD</span><i class="reload-icon"></i></button>
+          <button id="fire-btn" class="action-btn fire-btn" aria-label="Fire weapon"><span>FIRE</span><i class="fire-icon"></i></button>
+        </div>
+      </section>
+    </div>
+
+    <div id="aim-hint" class="aim-hint">CLICK TO LOOK</div>
+  </div>
+
+  <section id="start-screen" class="overlay start-screen">
+    <div class="start-topline">
+      <span class="brand-mark"><i></i> DAY ZERO // FIELD TEST 07</span>
+      <span>LOW-POLY SURVIVAL · MOBILE READY</span>
+    </div>
+
+    <div class="start-content">
+      <p class="eyebrow">THE OUTBREAK IS 43 DAYS OLD</p>
+      <h1>DAY<span>ZERO</span></h1>
+      <p class="tagline">Scavenge the dead zone.<br />Keep your vitals alive.<br /><em>Survive until dawn.</em></p>
+
+      <button id="play-btn" class="play-btn">
+        <span>START GAME</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+
+      <div class="start-meta">
+        <div><b>01</b><span>SCAVENGE</span><small>Food, water, ammo.</small></div>
+        <div><b>02</b><span>STAY MOVING</span><small>The infected hunt by sound.</small></div>
+        <div><b>03</b><span>MAKE DAWN</span><small>One night. No second chances.</small></div>
+      </div>
+    </div>
+
+    <div class="start-footer">
+      <div class="control-list">
+        <span><kbd>WASD</kbd> MOVE</span>
+        <span><kbd>MOUSE</kbd> LOOK</span>
+        <span><kbd>CLICK</kbd> FIRE</span>
+        <span><kbd>E</kbd> INTERACT</span>
+        <span><kbd>1 2 3</kbd> USE ITEMS</span>
+      </div>
+      <p>TOUCH DEVICES: LEFT STICK TO MOVE · DRAG TO LOOK · USE THE ON-SCREEN ACTIONS</p>
+    </div>
+  </section>
+
+  <section id="pause-screen" class="overlay pause-screen hidden">
+    <div class="modal-card narrow">
+      <p class="eyebrow">SURVIVAL PAUSED</p>
+      <h2>TAKE A BREATH</h2>
+      <p class="modal-copy">The dead are patient. Your vitals are frozen while you are here.</p>
+      <button id="resume-btn" class="play-btn small"><span>RESUME</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <button id="restart-btn" class="text-btn">RESTART RUN</button>
+    </div>
+  </section>
+
+  <section id="end-screen" class="overlay end-screen hidden">
+    <div class="modal-card">
+      <p id="end-eyebrow" class="eyebrow">SIGNAL LOST</p>
+      <h2 id="end-title">YOU DIED</h2>
+      <p id="end-copy" class="modal-copy">The dead zone keeps what it takes.</p>
+      <div class="run-stats">
+        <div><b id="end-time">00:00</b><span>SURVIVED</span></div>
+        <div><b id="end-kills">0</b><span>INFECTED</span></div>
+        <div><b id="end-loot">0</b><span>SCAVENGED</span></div>
+      </div>
+      <button id="retry-btn" class="play-btn"><span>RUN AGAIN</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+    </div>
+  </section>
+
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
