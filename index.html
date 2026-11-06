@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#101a1c" />
+  <title>Little Worlds — God Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Little Worlds home"><span class="brand-mark">✳</span><span class="brand-copy">LITTLE<span>WORLDS</span></span></a>
+      <div class="world-title"><span class="live-dot"></span><span id="worldName">THE GREEN REACH</span><span class="title-divider">/</span><span id="worldAge">DAY 01</span></div>
+      <div class="top-actions">
+        <button class="icon-button" id="soundBtn" title="Toggle sound" aria-label="Toggle sound">♫</button>
+        <button class="icon-button" id="helpBtn" title="How to play" aria-label="How to play">?</button>
+        <button class="share-button" id="newWorldBtn"><span>＋</span> NEW WORLD</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="tool-rail">
+        <div class="rail-label">SHAPE YOUR WORLD</div>
+        <button class="rail-tool active" data-tool="land" title="Raise land"><span class="tool-icon land-icon">⌁</span><span>Land</span><kbd>1</kbd></button>
+        <button class="rail-tool" data-tool="water" title="Add water"><span class="tool-icon water-icon">≈</span><span>Water</span><kbd>2</kbd></button>
+        <button class="rail-tool" data-tool="forest" title="Grow forest"><span class="tool-icon forest-icon">♣</span><span>Forest</span><kbd>3</kbd></button>
+        <button class="rail-tool" data-tool="life" title="Create life"><span class="tool-icon life-icon">♟</span><span>Life</span><kbd>4</kbd></button>
+        <div class="rail-separator"></div>
+        <div class="rail-label small">GOD POWERS</div>
+        <button class="rail-tool power-tool" data-tool="lightning" title="Strike lightning"><span class="tool-icon">ϟ</span><span>Lightning</span></button>
+        <button class="rail-tool power-tool" data-tool="meteor" title="Drop a meteor"><span class="tool-icon">☄</span><span>Meteor</span></button>
+        <button class="rail-tool power-tool" data-tool="rain" title="Bring rain"><span class="tool-icon">☂</span><span>Rain</span></button>
+        <div class="rail-bottom"><span class="tiny-star">✳</span><span>YOUR<br>UNIVERSE</span></div>
+      </aside>
+
+      <section class="world-stage" aria-label="World map">
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="worldCanvas" aria-label="Interactive world map"></canvas>
+          <div class="map-vignette"></div>
+          <div class="map-coordinates"><span>✳</span> <span id="coordinateText">A WORLD, WAITING</span></div>
+          <div class="map-controls">
+            <button id="zoomIn" aria-label="Zoom in">＋</button><button id="zoomOut" aria-label="Zoom out">−</button>
+            <span class="control-line"></span><button id="centerMap" aria-label="Center map">⌖</button>
+          </div>
+          <div class="event-toast" id="eventToast"><span class="toast-icon">✦</span><span id="toastText">A new world takes shape</span></div>
+          <div class="map-hint" id="mapHint"><span class="mouse-symbol">⌖</span> CLICK &amp; DRAG TO SHAPE YOUR WORLD</div>
+        </div>
+        <footer class="world-footer">
+          <div class="legend"><span><i class="legend-dot land-dot"></i>GRASSLAND</span><span><i class="legend-dot sea-dot"></i>OCEAN</span><span><i class="legend-dot forest-dot"></i>FOREST</span><span><i class="legend-dot people-dot"></i>SETTLEMENT</span></div>
+          <div class="map-size">WORLD MAP <span>·</span> 96 × 64</div>
+        </footer>
+      </section>
+
+      <aside class="right-panel">
+        <section class="world-card">
+          <div class="card-heading"><span>WORLD OVERVIEW</span><button class="more-button" id="worldMenu">···</button></div>
+          <div class="world-art"><div class="sun"></div><div class="art-hill hill-back"></div><div class="art-hill hill-front"></div><div class="art-island"></div><div class="art-cloud cloud-one"></div><div class="art-cloud cloud-two"></div><div class="art-bird">⌁</div><div class="art-caption">A quiet corner<br>of the universe.</div></div>
+          <div class="world-meta"><div><span class="meta-label">BIOME</span><strong id="biomeLabel">TEMPERATE</strong></div><div><span class="meta-label">CLIMATE</span><strong><span class="climate-icon">☼</span> MILD</strong></div></div>
+        </section>
+
+        <section class="life-card">
+          <div class="card-heading"><span>THE LITTLE ONES</span><span class="population-live"><i></i> LIVE</span></div>
+          <div class="population-number" id="populationCount">0</div>
+          <div class="population-caption">inhabitants across your world</div>
+          <div class="population-chart"><div class="chart-bars" id="chartBars"></div><div class="chart-labels"><span>PAST</span><span>NOW</span></div></div>
+          <div class="settlement-row"><span class="settlement-icon">⌂</span><span><b id="settlementCount">0</b> settlements</span><span class="settlement-sep">·</span><span><b id="speciesCount">0</b> species</span></div>
+        </section>
+
+        <section class="tool-settings" id="toolSettings">
+          <div class="card-heading"><span id="settingsTitle">LAND TOOL</span><span class="settings-glyph">✳</span></div>
+          <p id="settingsDescription">Raise the earth and make room for life.</p>
+          <label class="life-picker" id="lifePicker"><span>WELCOME</span><select id="lifeType"><option value="human">Villager</option><option value="deer">Deer</option><option value="rabbit">Rabbit</option></select></label>
+          <div class="brush-row"><span>BRUSH SIZE</span><div class="brush-control"><button id="brushDown" aria-label="Smaller brush">−</button><span id="brushSize">3</span><button id="brushUp" aria-label="Larger brush">＋</button></div></div>
+          <div class="brush-slider-wrap"><input type="range" id="brushSlider" min="1" max="9" value="3" /></div>
+          <button class="action-button" id="toolAction"><span>✦</span><span id="actionLabel">RAISE LAND</span><span class="action-arrow">↗</span></button>
+        </section>
+
+        <div class="tip-card"><span class="tip-mark">✳</span><p><b>A little tip</b><br>Plant trees near water to help your civilization thrive.</p></div>
+        <div class="side-footer"><span>MADE OF LITTLE THINGS</span><span>v. 1.0</span></div>
+      </aside>
+
+      <div class="timeline" id="timeline">
+        <div class="timeline-intro"><span class="timeline-icon">◷</span><div><b>TIME IS YOURS</b><small>Let the little ones grow</small></div></div>
+        <div class="time-controls"><button id="playButton" class="play-button" aria-label="Play">▶</button><button class="speed-button active" data-speed="1">1×</button><button class="speed-button" data-speed="2">2×</button><button class="speed-button" data-speed="4">4×</button></div>
+        <div class="timeline-track"><div class="track-labels"><span>DAY 01</span><span>DAY <b id="timelineDay">01</b></span></div><div class="track-line"><span class="track-progress" id="trackProgress"></span><i class="track-knob" id="trackKnob"></i></div></div>
+        <div class="timeline-weather"><span class="weather-sun">☼</span><div><b>GENTLE BREEZE</b><small>Clear skies ahead</small></div><span class="weather-dots">···</span></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="helpModal" aria-hidden="true"><section class="help-modal"><button class="modal-close" id="closeHelp">×</button><span class="modal-spark">✳</span><span class="modal-kicker">A TINY GUIDE</span><h2>You're the <em>maker</em> here.</h2><p>Shape a little world, then see what happens. Raise land, fill the seas, and paint forests wherever you like.</p><div class="guide-steps"><div><span>01</span><b>Make a home</b><small>Use land &amp; water to carve out a place.</small></div><div><span>02</span><b>Bring life</b><small>Choose Life, then click on your island.</small></div><div><span>03</span><b>Let it grow</b><small>Press play and watch your world unfold.</small></div></div><button class="modal-start" id="startPlaying">LET'S MAKE A WORLD <span>↗</span></button></section></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
